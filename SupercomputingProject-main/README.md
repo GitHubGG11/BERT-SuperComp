@@ -1,3 +1,5 @@
+Old project from LANL Supercomputing, training on initial foundational BERT models, precursor to ChatGPT.
+
 # Social Media Controversiality Predictor
 
 This project predicts how a social media post may perform across like-to-retweet ratio percentiles using an end-to-end NLP pipeline. It was built for the 31st Supercomputing Challenge and is structured as a small machine learning system: collect tweet data, transform engagement metrics into labels, train a BERT-based classifier, and expose predictions through a demo interface.
@@ -8,9 +10,9 @@ The core product question is:
 
 ## Live Demo
 
-Open `index.html` in a browser, or publish this repository with GitHub Pages.
+Try the GitHub Pages demo: https://githubgg11.github.io/BERT-SuperComp/index.html
 
-The GitHub Pages demo is a static, browser-only approximation of the model workflow. It does not load the TensorFlow SavedModel because GitHub Pages cannot run the Python/TensorFlow backend. Instead, it demonstrates the same system contract: text input goes through feature extraction, percentile scoring, and an interpretable engagement distribution.
+The browser demo provides a lightweight version of the prediction interface: enter sample post text, choose from example inputs, and view the resulting like-to-retweet percentile distribution. The full TensorFlow/BERT model runs locally through the Python code, while the GitHub Pages version focuses on making the project workflow easy to review in a browser.
 
 ## System Design
 
@@ -84,16 +86,6 @@ Tweet text
 
 The project uses transfer learning because training a language model from scratch would require far more data and compute. BERT provides general language understanding, while the final dense layer adapts that representation to this project's engagement prediction task.
 
-## Engineering Tradeoffs
-
-| Decision | Benefit | Tradeoff |
-| --- | --- | --- |
-| BERT transfer learning | Strong text representations with less project-specific data | Heavier dependency and slower training than classical ML |
-| Percentile classification | Reduces sensitivity to viral outliers | Gives relative categories instead of exact engagement counts |
-| JSON dataset | Easy to inspect and reproduce locally | Not optimized for large-scale training |
-| Gradio local demo | Fast way to test real model predictions | Requires Python dependencies and a saved model |
-| Static GitHub Pages demo | Easy portfolio access | Demonstrates system behavior rather than running the full model |
-
 ## Running Locally
 
 Install dependencies:
@@ -119,29 +111,6 @@ Open the static portfolio demo:
 ```bash
 start index.html
 ```
-
-## What This Shows
-
-This project demonstrates practical system design for a machine learning application:
-
-- A modular pipeline from data collection to inference
-- API abstraction and rate-limit awareness
-- Feature and label design for noisy real-world engagement data
-- Transfer learning with a production-style TensorFlow model
-- Separate local and static demo surfaces for different deployment constraints
-- Clear tradeoff thinking around scalability, explainability, and maintainability
-
-## Future Improvements
-
-- Save percentile boundaries alongside the trained model so inference can display calibrated labels.
-- Add unit tests for API URL construction, ratio binning, and empty-text handling.
-- Move configuration values such as dataset path, model path, and epochs into a config file.
-- Add a small backend API for hosted real-model inference.
-- Track model versions and evaluation metrics for reproducible experiments.
-
-## Tech Stack
-
-Python, TensorFlow, TensorFlow Hub, TensorFlow Text, BERT, NumPy, scikit-learn, Gradio, Requests, HTML, CSS, and JavaScript.
 
 ## License
 
