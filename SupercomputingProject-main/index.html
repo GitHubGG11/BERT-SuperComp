@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Social Media Controversiality Predictor</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f6f7f9;
+      color: #1f2933;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 18px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+    }
+
+    p {
+      color: #52606d;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      font: inherit;
+      border: 1px solid #cbd2d9;
+      border-radius: 6px;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 12px;
+      margin-right: 8px;
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 6px;
+      background: #2563eb;
+      color: white;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: white;
+      color: #1f2933;
+      border: 1px solid #cbd2d9;
+    }
+
+    .result {
+      margin-top: 24px;
+      padding: 18px;
+      background: white;
+      border: 1px solid #d9e2ec;
+      border-radius: 6px;
+    }
+
+    .samples {
+      margin-top: 4px;
+    }
+
+    .histogram {
+      height: 160px;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 6px;
+      align-items: end;
+      padding-top: 12px;
+      border-bottom: 1px solid #cbd2d9;
+    }
+
+    .bin {
+      min-width: 0;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #52606d;
+    }
+
+    .column {
+      width: 100%;
+      min-height: 4px;
+      background: #2563eb;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .bin span {
+      display: block;
+      margin-top: 6px;
+      white-space: nowrap;
+      font-size: 0.68rem;
+    }
+
+    .note {
+      margin-top: 22px;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Social Media Controversiality Predictor</h1>
+    <p>
+      This demo shows the output shape of my project: enter post text and see a
+      simple predicted distribution across like-to-retweet percentile ranges.
+    </p>
+
+    <textarea id="text">This policy change will reshape how platforms handle speech, safety, and public accountability. We should debate the tradeoffs before treating it as obvious.</textarea>
+    <button type="button" id="analyze">Analyze</button>
+    <div class="samples">
+      <button class="secondary" type="button" data-sample="launch">Launch sample</button>
+      <button class="secondary" type="button" data-sample="policy">Policy sample</button>
+      <button class="secondary" type="button" data-sample="casual">Casual sample</button>
+    </div>
+
+    <section class="result">
+      <h2>Prediction Demo</h2>
+      <p id="summary">Top range: --</p>
+      <div id="chart"></div>
+    </section>
+
+    <p class="note">
+      Note: the real model is a TensorFlow/BERT classifier in the Python project.
+      This static page is for GitHub Pages, so it uses lightweight JavaScript to
+      demonstrate the same interaction.
+    </p>
+  </main>
+
+  <script>
+    const labels = ["0-10%", "10-20%", "20-30%", "30-40%", "40-50%", "50-60%", "60-70%", "70-80%", "80-90%", "90-100%"];
+    const samples = {
+      launch: "Just launched a new AI tool after months of testing. Early users say it saves hours of work each week, and I am sharing the project architecture today.",
+      policy: "This policy change will reshape how platforms handle speech, safety, and public accountability. We should debate the tradeoffs before treating it as obvious.",
+      casual: "Had coffee this morning and finished organizing my notes for class. Pretty normal day, but the weather was nice."
+    };
+    const textInput = document.querySelector("#text");
+    const chart = document.querySelector("#chart");
+    const summary = document.querySelector("#summary");
+
+    function predict(text) {
+      const words = text.toLowerCase().split(/\s+/);
+      const debateWords = ["policy", "debate", "rights", "speech", "safety", "change", "accountability"];
+      const launchWords = ["new", "launch", "research", "breakthrough", "study", "tool"];
+      const debateScore = debateWords.filter(word => text.toLowerCase().includes(word)).length;
+      const launchScore = launchWords.filter(word => text.toLowerCase().includes(word)).length;
+      const center = Math.min(9, Math.max(0, 3 + debateScore * 0.7 + launchScore * 0.5 + words.length / 35));
+
+      const raw = labels.map((_, index) => {
+        const distance = index - center;
+        return Math.exp(-(distance * distance) / 5);
+      });
+      const total = raw.reduce((sum, value) => sum + value, 0);
+      return raw.map(value => value / total);
+    }
+
+    function render() {
+      const values = predict(textInput.value);
+      const topIndex = values.indexOf(Math.max(...values));
+      summary.textContent = `Top range: ${labels[topIndex]}`;
+      const max = Math.max(...values);
+      chart.innerHTML = `
+        <div class="histogram">
+          ${values.map((value, index) => `
+            <div class="bin">
+              <div class="column" title="${labels[index]}: ${Math.round(value * 100)}%" style="height: ${Math.max(4, Math.round((value / max) * 115))}px"></div>
+              <span>${labels[index]}</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    document.querySelector("#analyze").addEventListener("click", render);
+    document.querySelectorAll("[data-sample]").forEach(button => {
+      button.addEventListener("click", () => {
+        textInput.value = samples[button.dataset.sample];
+        render();
+      });
+    });
+    render();
+  </script>
+</body>
+</html>
