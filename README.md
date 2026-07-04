@@ -10,7 +10,7 @@ The core product question is:
 
 ## Live Demo
 
-Try the GitHub Pages demo: https://githubgg11.github.io/BERT-SuperComp/index.html
+Try the GitHub Pages demo: https://githubgg11.github.io/BERT-SuperComp/SupercomputingProject-main/index.html
 
 The browser demo provides a lightweight version of the prediction interface: enter sample post text, choose from example inputs, and view the resulting like-to-retweet percentile distribution. The full TensorFlow/BERT model runs locally through the Python code, while the GitHub Pages version focuses on making the project workflow easy to review in a browser.
 
